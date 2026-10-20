@@ -187,7 +187,10 @@ async function redeemCode(rawCode) {
       const expiresAtMillis = Date.now() + durationHours * 60 * 60 * 1000;
       if (!Number.isFinite(expiresAtMillis)) return null;
       const expiresAtTimestamp = Timestamp.fromMillis(expiresAtMillis);
-      transaction.update(codeRef, { usado: true });
+      transaction.update(codeRef, {
+        usado: true,
+        sesionId: sessionId
+      });
       transaction.set(sessionRef, {
         activa: true,
         expiresAt: expiresAtTimestamp,

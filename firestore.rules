@@ -8,7 +8,11 @@ service cloud.firestore {
       allow create, delete: if false;
       allow update: if resource.data.usado == false
         && request.resource.data.usado == true
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado']);
+        && request.resource.data.sesionId is string
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado', 'sesionId'])
+        && existsAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId))
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId)).data.codigoId == codeId
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId)).data.activa == true;
     }
 
     match /sesiones_juego/{sessionId} {
@@ -22,6 +26,7 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId))
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == false
         && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == true
+        && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.sesionId == sessionId
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras is int
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras > 0
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras <= 720
