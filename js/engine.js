@@ -4,6 +4,13 @@
   const config = window.ESCAPE_CONFIG;
   const elements = {
     background: document.getElementById("background"),
+    gameContent: document.getElementById("game-content"),
+    expiredView: document.getElementById("expired-view"),
+    expiredTitle: document.getElementById("expired-title"),
+    expiredMessage: document.getElementById("expired-message"),
+    sessionBlocked: document.getElementById("session-blocked"),
+    sessionBlockedTitle: document.getElementById("session-blocked-title"),
+    sessionBlockedMessage: document.getElementById("session-blocked-message"),
     music: document.getElementById("music"),
     musicButton: document.getElementById("music-button"),
     logo: document.getElementById("game-logo"),
@@ -24,6 +31,9 @@
   let state;
   let currentStage;
   let storageReady = true;
+  let accessDeadline = null;
+  let accessTimer = null;
+  let accessBlocked = false;
 
   function interpolate(template, values) {
     return template.replace(/\{(\w+)\}/g, function (match, key) {
@@ -95,6 +105,95 @@
         throw new Error("Tipo de prueba no reconocido: " + stage.kind);
       }
     });
+    if (config.access && config.access.enabled) {
+      if (config.access.expiresAt && !Number.isFinite(Date.parse(config.access.expiresAt))) {
+        throw new Error("La fecha fija de expiración no tiene un formato válido.");
+      }
+      if (config.access.maxDurationHours !== undefined &&
+        (!Number.isFinite(config.access.maxDurationHours) || config.access.maxDurationHours <= 0)) {
+        throw new Error("La duración máxima de acceso debe ser un número positivo de horas.");
+      }
+      if (!config.access.expiresAt && config.access.maxDurationHours === undefined) {
+        throw new Error("El acceso necesita una fecha límite o una duración máxima.");
+      }
+    }
+  }
+
+  function checkAccess() {
+    const access = config.access;
+    if (!access || !access.enabled) return { allowed: true };
+
+    const now = Date.now();
+    const deadlines = [];
+    if (access.expiresAt) deadlines.push(Date.parse(access.expiresAt));
+
+    if (access.maxDurationHours !== undefined) {
+      const startKey = config.storageKey + ":access-start";
+      let startTime;
+      try {
+        const storedStart = window.localStorage.getItem(startKey);
+        if (storedStart === null) {
+          startTime = now;
+          window.localStorage.setItem(startKey, String(startTime));
+        } else {
+          startTime = Number(storedStart);
+        }
+      } catch (error) {
+        console.error("No se pudo leer o registrar el inicio del periodo de acceso.", error);
+        return { allowed: false, unavailable: true };
+      }
+      if (!Number.isFinite(startTime) || startTime <= 0 || startTime > now) {
+        console.error("El inicio del periodo de acceso guardado no es válido.");
+        return { allowed: false, unavailable: true };
+      }
+      deadlines.push(startTime + access.maxDurationHours * 60 * 60 * 1000);
+    }
+
+    accessDeadline = Math.min.apply(Math, deadlines);
+    return {
+      allowed: now < accessDeadline,
+      deadline: accessDeadline
+    };
+  }
+
+  function showExpiredAccess(unavailable) {
+    if (accessBlocked) return;
+    accessBlocked = true;
+    if (accessTimer !== null) window.clearTimeout(accessTimer);
+    elements.music.pause();
+    elements.gameContent.hidden = true;
+    elements.expiredTitle.textContent = unavailable
+      ? config.access.unavailableTitle || config.access.expiredTitle
+      : config.access.expiredTitle;
+    elements.expiredMessage.textContent = unavailable
+      ? config.access.unavailableMessage || config.access.expiredMessage
+      : config.access.expiredMessage;
+    elements.expiredView.hidden = false;
+    document.title = elements.expiredTitle.textContent;
+    document.body.classList.add("access-closed");
+  }
+
+  function ensureAccess() {
+    if (accessBlocked) return false;
+    if (!config.access || !config.access.enabled) return true;
+    if (accessDeadline === null || Date.now() >= accessDeadline) {
+      showExpiredAccess(false);
+      return false;
+    }
+    return true;
+  }
+
+  function scheduleAccessCheck() {
+    if (accessDeadline === null || accessBlocked) return;
+    const remaining = accessDeadline - Date.now();
+    if (remaining <= 0) {
+      showExpiredAccess(false);
+      return;
+    }
+    accessTimer = window.setTimeout(
+      scheduleAccessCheck,
+      Math.min(remaining, 2147483647)
+    );
   }
 
   function applyBranding() {
@@ -211,6 +310,7 @@
   }
 
   function completeStage(message, resultType) {
+    if (!ensureAccess()) return;
     if (state.completed[currentStage.id]) return;
     state.completed[currentStage.id] = true;
     state.unlockedIndex = Math.max(state.unlockedIndex, config.stages.indexOf(currentStage) + 1);
@@ -387,6 +487,7 @@
   }
 
   function renderStage(stage) {
+    if (!ensureAccess()) return;
     currentStage = stage;
     clearStage();
     elements.stageTitle.textContent = stage.title || "";
@@ -429,6 +530,7 @@
   }
 
   function advance() {
+    if (!ensureAccess()) return;
     const nextIndex = config.stages.indexOf(currentStage) + 1;
     if (nextIndex >= config.stages.length) {
       state.unlockedIndex = config.stages.length;
@@ -453,6 +555,7 @@
   }
 
   function restart() {
+    if (!ensureAccess()) return;
     if (!window.confirm(config.ui.resetConfirm)) return;
     state = {
       currentId: config.stages[0].id,
@@ -466,32 +569,73 @@
     renderStage(config.stages[0]);
   }
 
-  try {
-    validateConfig();
-    applyBranding();
-    state = loadState();
-    const requestedIndex = stageFromUrl();
-    let currentIndex = config.stages.findIndex(function (stage) { return stage.id === state.currentId; });
-    if (requestedIndex !== null && requestedIndex >= 0) {
-      currentIndex = Math.min(requestedIndex, state.unlockedIndex, config.stages.length - 1);
+  function startGame() {
+    try {
+      validateConfig();
+      applyBranding();
+      const accessStatus = checkAccess();
+      if (!accessStatus.allowed) {
+        showExpiredAccess(Boolean(accessStatus.unavailable));
+        return;
+      }
+      elements.gameContent.hidden = false;
+      scheduleAccessCheck();
+      state = loadState();
+      const requestedIndex = stageFromUrl();
+      let currentIndex = config.stages.findIndex(function (stage) { return stage.id === state.currentId; });
+      if (requestedIndex !== null && requestedIndex >= 0) {
+        currentIndex = Math.min(requestedIndex, state.unlockedIndex, config.stages.length - 1);
+      }
+      if (currentIndex < 0) currentIndex = 0;
+      state.currentId = config.stages[currentIndex].id;
+      persist();
+      updateUrl(config.stages[currentIndex]);
+      renderStage(config.stages[currentIndex]);
+      const restartButton = document.createElement("button");
+      restartButton.type = "button";
+      restartButton.className = "restart-button";
+      restartButton.textContent = config.ui.restart;
+      restartButton.addEventListener("click", restart);
+      elements.footer.appendChild(restartButton);
+      if (!storageReady) setNotice(config.ui.storageUnavailable);
+    } catch (error) {
+      console.error("No se pudo iniciar Escape Room.", error);
+      elements.gameContent.hidden = true;
+      elements.expiredView.hidden = false;
+      elements.expiredTitle.textContent = config && config.ui ? config.ui.invalidConfig : "Error";
+      elements.expiredMessage.textContent = error.message;
+      document.title = elements.expiredTitle.textContent;
     }
-    if (currentIndex < 0) currentIndex = 0;
-    state.currentId = config.stages[currentIndex].id;
-    persist();
-    updateUrl(config.stages[currentIndex]);
-    renderStage(config.stages[currentIndex]);
-    const restartButton = document.createElement("button");
-    restartButton.type = "button";
-    restartButton.className = "restart-button";
-    restartButton.textContent = config.ui.restart;
-    restartButton.addEventListener("click", restart);
-    elements.footer.appendChild(restartButton);
-    if (!storageReady) setNotice(config.ui.storageUnavailable);
-  } catch (error) {
-    console.error("No se pudo iniciar Escape Room.", error);
-    setNotice(config.ui.invalidConfig);
-    elements.checkButton.hidden = true;
-    elements.continueButton.hidden = true;
-    elements.stageTitle.textContent = config && config.ui ? config.ui.invalidConfig : "Error";
   }
+
+  if (!window.ESCAPE_AUTH_READY || typeof window.ESCAPE_AUTH_READY.then !== "function") {
+    const title = "🔒 No se pudo validar la sesión";
+    elements.sessionBlockedTitle.textContent = title;
+    elements.sessionBlockedMessage.textContent = "No se pudo iniciar la validación de acceso. Vuelve a cargar la página o contacta con la organización.";
+    elements.sessionBlocked.hidden = false;
+    document.title = title;
+    return;
+  }
+  window.ESCAPE_AUTH_READY.then(function (result) {
+    if (result && result.allowed) {
+      startGame();
+      return;
+    }
+    elements.gameContent.hidden = true;
+    elements.expiredView.hidden = true;
+    elements.sessionBlockedTitle.textContent = result && result.title || "🔒 Acceso denegado o sesión no válida";
+    elements.sessionBlockedMessage.textContent = result && result.message || "Comprueba el enlace o contacta con la organización.";
+    elements.sessionBlocked.hidden = false;
+    document.title = elements.sessionBlockedTitle.textContent;
+    document.body.classList.add("access-closed");
+  }).catch(function (error) {
+    console.error("No se pudo completar la validación de sesión.", error);
+    elements.gameContent.hidden = true;
+    elements.expiredView.hidden = true;
+    elements.sessionBlockedTitle.textContent = "🔒 No se pudo validar la sesión";
+    elements.sessionBlockedMessage.textContent = "Ocurrió un error al comprobar el acceso. Vuelve a cargar la página o contacta con la organización.";
+    elements.sessionBlocked.hidden = false;
+    document.title = elements.sessionBlockedTitle.textContent;
+    document.body.classList.add("access-closed");
+  });
 })();

@@ -70,6 +70,40 @@ body {
   backdrop-filter: blur(4px);
 }
 
+.expired-view {
+  max-width: 680px;
+  margin-top: clamp(40px, 12vh, 120px);
+  padding: clamp(26px, 6vw, 54px);
+  border-color: var(--error);
+  text-align: center;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--error), transparent 48%);
+}
+
+.expired-symbol {
+  margin-bottom: 14px;
+  color: var(--error);
+  font-size: clamp(42px, 10vw, 68px);
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--error), transparent 20%));
+}
+
+.expired-view h1 {
+  margin-top: 0;
+  color: var(--error);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--error), transparent 22%);
+}
+
+.expired-message {
+  max-width: 52ch;
+  margin: 22px auto 0;
+  color: var(--text);
+  font-size: clamp(16px, 3vw, 20px);
+  line-height: 1.8;
+}
+
+body.access-closed .background {
+  display: none;
+}
+
 .logo {
   display: block;
   width: min(140px, 45vw);

@@ -14,29 +14,77 @@
   <div id="background" class="background" aria-hidden="true"></div>
   <audio id="music" loop></audio>
 
-  <button id="music-button" class="music-button" type="button"></button>
+  <div id="game-content" hidden>
+    <button id="music-button" class="music-button" type="button"></button>
 
-  <main class="container">
-    <img id="game-logo" class="logo" alt="">
-    <h1 id="game-title"></h1>
-    <p id="game-intro" class="intro"></p>
-    <p id="progress" class="progress" aria-live="polite"></p>
+    <main class="container">
+      <img id="game-logo" class="logo" alt="">
+      <h1 id="game-title"></h1>
+      <p id="game-intro" class="intro"></p>
+      <p id="progress" class="progress" aria-live="polite"></p>
 
-    <section class="challenge" aria-labelledby="stage-title">
-      <h2 id="stage-title"></h2>
-      <p id="stage-prompt" class="prompt"></p>
-      <div id="challenge-content"></div>
-      <button id="check-button" class="primary-button" type="button"></button>
-      <button id="hint-button" class="secondary-button" type="button" hidden></button>
-      <p id="hint" class="hint" hidden></p>
-      <div id="result" class="result" role="status" aria-live="polite"></div>
-      <button id="continue-button" class="continue-button" type="button" hidden></button>
-    </section>
+      <section class="challenge" aria-labelledby="stage-title">
+        <h2 id="stage-title"></h2>
+        <p id="stage-prompt" class="prompt"></p>
+        <div id="challenge-content"></div>
+        <button id="check-button" class="primary-button" type="button"></button>
+        <button id="hint-button" class="secondary-button" type="button" hidden></button>
+        <p id="hint" class="hint" hidden></p>
+        <div id="result" class="result" role="status" aria-live="polite"></div>
+        <button id="continue-button" class="continue-button" type="button" hidden></button>
+      </section>
 
-    <p id="notice" class="notice" role="status" aria-live="polite"></p>
-    <footer id="game-footer" class="footer"></footer>
+      <p id="notice" class="notice" role="status" aria-live="polite"></p>
+      <footer id="game-footer" class="footer"></footer>
+    </main>
+  </div>
+
+  <main id="expired-view" class="container expired-view" hidden>
+    <div class="expired-symbol" aria-hidden="true">🔒</div>
+    <h1 id="expired-title"></h1>
+    <p id="expired-message" class="expired-message"></p>
   </main>
 
+  <main id="session-blocked" class="container expired-view" hidden>
+    <div class="expired-symbol" aria-hidden="true">🔒</div>
+    <h1 id="session-blocked-title"></h1>
+    <p id="session-blocked-message" class="expired-message"></p>
+  </main>
+
+  <script>
+    window.ESCAPE_AUTH_READY = new Promise(function (resolve) {
+      let completed = false;
+      let timeout;
+      window.finishEscapeAuth = function (result) {
+        if (completed) return;
+        completed = true;
+        window.clearTimeout(timeout);
+        resolve(result);
+      };
+      timeout = window.setTimeout(function () {
+        window.finishEscapeAuth({
+          allowed: false,
+          title: "🔒 No se pudo validar la sesión",
+          message: "No se recibió respuesta de Firebase. Comprueba tu conexión y vuelve a cargar la página."
+        });
+      }, 15000);
+    });
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBonaZQAH_5whKokDV8lnl2eP70WINPRTw",
+      authDomain: "quiz-teams-414d7.firebaseapp.com",
+      projectId: "quiz-teams-414d7",
+      storageBucket: "quiz-teams-414d7.firebasestorage.app",
+      messagingSenderId: "834996635016",
+      appId: "1:834996635016:web:c48a60c6643d27bb6c263d"
+    };
+
+    window.escapeFirebaseApp = initializeApp(firebaseConfig);
+  </script>
+  <script type="module" src="js/firebase-auth.js"></script>
   <script src="js/config.js"></script>
   <script src="js/minigames.js"></script>
   <script src="js/engine.js"></script>
