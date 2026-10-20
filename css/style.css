@@ -123,79 +123,6 @@ h2[data-location]:not([data-location=""])::after {
   font-size: 0.52em;
 }
 
-.stage-image-container {
-  margin: 18px auto;
-  text-align: center;
-}
-
-.stage-image {
-  display: none;
-}
-
-.magical-card {
-  position: relative;
-  display: flex;
-  min-height: 142px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  overflow: hidden;
-  border: 1px solid var(--accent);
-  border-radius: 10px;
-  background:
-    radial-gradient(ellipse at center, rgba(212, 175, 55, 0.18), transparent 62%),
-    linear-gradient(135deg, rgba(31, 24, 14, 0.96), rgba(10, 10, 10, 0.96));
-  box-shadow: inset 0 0 24px rgba(212, 175, 55, 0.12), 0 0 14px rgba(212, 175, 55, 0.2);
-  color: var(--highlight);
-}
-
-.magical-card::before,
-.magical-card::after {
-  position: absolute;
-  top: 50%;
-  width: min(24%, 150px);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  content: "";
-}
-
-.magical-card::before {
-  left: 12px;
-}
-
-.magical-card::after {
-  right: 12px;
-}
-
-.magical-card-symbol {
-  color: var(--accent);
-  font-size: 18px;
-  text-shadow: 0 0 10px var(--highlight);
-}
-
-.magical-card-label {
-  font-size: clamp(18px, 3.5vw, 25px);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.65);
-  text-transform: uppercase;
-}
-
-.magical-card-caption {
-  color: var(--text);
-  font-size: clamp(12px, 2.5vw, 15px);
-  font-style: italic;
-}
-
-.stage-image {
-  width: 100%;
-  max-height: 320px;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  object-fit: cover;
-}
-
 .prompt {
   margin: 24px 0;
   font-size: clamp(18px, 3vw, 24px);
@@ -391,14 +318,39 @@ button:disabled {
 .platform-board,
 .spell-board {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 12px;
   max-width: 520px;
   margin: 14px auto;
 }
 
 .choice {
-  min-height: 64px;
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  margin: 0;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.choice-label {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  color: var(--highlight);
+  font-size: 16px;
+  font-weight: 700;
+  text-shadow: 0 0 7px var(--highlight);
+}
+
+.choice-text {
+  line-height: 1.5;
 }
 
 .game-status,

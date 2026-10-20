@@ -52,9 +52,9 @@ En un quiz, alcanzar el límite de respuestas incorrectas muestra la solución,
 pero no desbloquea la etapa: el jugador aún debe seleccionar la respuesta
 correcta para recibir la pista del sobre.
 
-Las imágenes de cada prueba se conservan como fondo difuminado para no revelar
-la solución. En la vista se muestra una tarjeta decorativa de mapa encantado en
-lugar de la fotografía.
+Las imágenes de cada prueba se conservan únicamente como fondo difuminado para
+no revelar la solución. La interfaz está optimizada para móvil; las opciones de
+quiz aparecen en una columna con objetivos táctiles amplios.
 
 ## Persistencia y seguridad
 

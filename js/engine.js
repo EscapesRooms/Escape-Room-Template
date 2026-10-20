@@ -11,8 +11,6 @@
     intro: document.getElementById("game-intro"),
     progress: document.getElementById("progress"),
     stageTitle: document.getElementById("stage-title"),
-    imageContainer: document.getElementById("stage-image-container"),
-    image: document.getElementById("stage-image"),
     prompt: document.getElementById("stage-prompt"),
     content: document.getElementById("challenge-content"),
     checkButton: document.getElementById("check-button"),
@@ -186,8 +184,6 @@
     elements.continueButton.hidden = true;
     elements.result.textContent = "";
     elements.result.className = "result";
-    elements.imageContainer.hidden = true;
-    elements.image.removeAttribute("src");
     elements.prompt.textContent = "";
   }
 
@@ -356,7 +352,13 @@
       button.type = "button";
       button.className = "choice";
       button.id = option.id;
-      button.textContent = option.text;
+      const label = document.createElement("span");
+      label.className = "choice-label";
+      label.textContent = option.id;
+      const text = document.createElement("span");
+      text.className = "choice-text";
+      text.textContent = option.text;
+      button.append(label, text);
       button.addEventListener("click", function () {
         if (option.id === stage.answer) {
           button.classList.add("choice-correct");
@@ -391,9 +393,6 @@
     elements.prompt.textContent = stage.prompt || "";
     elements.stageTitle.dataset.location = stage.location || "";
     if (stage.image) {
-      elements.image.src = stage.image;
-      elements.image.alt = stage.location || stage.title || "";
-      elements.imageContainer.hidden = false;
       elements.background.style.backgroundImage = "url(" + JSON.stringify(stage.image) + ")";
     } else {
       elements.background.style.backgroundImage = "";
