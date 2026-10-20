@@ -35,6 +35,10 @@ de cada prueba. Los accesos a pruebas bloqueadas se llevan a la fase permitida.
 El ejemplo incluido contiene contenido de demostración de Hogwarts. Sustitúyelo
 antes de entregar una campaña a un cliente.
 
+Las imágenes de cada prueba se conservan como fondo difuminado para no revelar
+la solución. En la vista se muestra una tarjeta decorativa de mapa encantado en
+lugar de la fotografía.
+
 ## Persistencia y seguridad
 
 El progreso se guarda en `localStorage` en el dispositivo del jugador. Se
