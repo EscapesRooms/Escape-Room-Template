@@ -10,11 +10,16 @@ Abre `index.html` en un navegador moderno. Para usarlo con códigos QR, publíca
 en un sitio web HTTPS y crea un QR por prueba con `?pista=<id>`; por ejemplo:
 
 ```text
-https://ejemplo.com/?pista=coordenadas
+https://ejemplo.com/?pista=biblioteca-restringida
 ```
 
 También se aceptan los identificadores numéricos definidos en la propiedad `qr`
 de cada prueba. Los accesos a pruebas bloqueadas se llevan a la fase permitida.
+La campaña de ejemplo incluye seis etapas físicas y digitales: QR de la
+localización → reto → acertijo en pantalla para hallar un sobre físico →
+artefacto y pista en papel dentro del sobre para llegar a la siguiente etapa.
+Sus identificadores de ejemplo son `gran-comedor`, `biblioteca-restringida`,
+`sauce-boxeador`, `anden-encantado`, `campo-quidditch` y `camara-final`.
 
 ## Preparar una campaña
 
@@ -24,16 +29,28 @@ de cada prueba. Los accesos a pruebas bloqueadas se llevan a la fase permitida.
 3. Para cambiar el orden o los parámetros de los seis minijuegos, edita las
    propiedades `game` de la prueba correspondiente. Los tipos admitidos son
    `runas`, `guardianes`, `anden`, `transporte`, `snitch` y `hechizo`.
-4. Copia las imágenes y el audio de esa campaña a `assets/img/` y
+4. Para el flujo híbrido, agrega a cada etapa un objeto `envelope` con `label`,
+   `artifact`, `nextLocationClue` y, opcionalmente, `ending`. `success` o
+   `game.successText` es el acertijo digital para encontrar el sobre en la
+   localización actual. El motor muestra ese mensaje una sola vez en una tarjeta
+   destacada; `envelope` es información de preparación para la persona
+   organizadora y no se revela automáticamente al jugador.
+5. Copia las imágenes y el audio de esa campaña a `assets/img/` y
    `assets/audio/`, y actualiza sus rutas en la configuración.
-5. Asigna un `storageKey` distinto a cada campaña publicada en el mismo dominio.
+6. Asigna un `storageKey` distinto a cada campaña publicada en el mismo dominio.
    Si cambias la estructura de fases de una campaña ya publicada, incrementa la
    versión de esa clave para iniciar un progreso independiente.
-6. Prueba el enlace de cada QR, las respuestas, la reanudación tras recargar y
+7. Prueba el enlace de cada QR, las respuestas, la reanudación tras recargar y
    el diseño en móvil antes de compartirlo.
 
-El ejemplo incluido contiene contenido de demostración de Hogwarts. Sustitúyelo
-antes de entregar una campaña a un cliente.
+El ejemplo incluido usa temática de Hogwarts y escondites de muestra. Sustituye
+los textos, las respuestas, los artefactos y los acertijos por datos adecuados
+al recorrido real antes de entregar una campaña a un cliente. Comprueba que cada
+escondite exista y sea seguro y permitido.
+
+En un quiz, alcanzar el límite de respuestas incorrectas muestra la solución,
+pero no desbloquea la etapa: el jugador aún debe seleccionar la respuesta
+correcta para recibir la pista del sobre.
 
 Las imágenes de cada prueba se conservan como fondo difuminado para no revelar
 la solución. En la vista se muestra una tarjeta decorativa de mapa encantado en

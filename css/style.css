@@ -275,6 +275,55 @@ button:disabled {
   color: var(--success);
 }
 
+.result.field-clue {
+  position: relative;
+  margin: 26px 0 18px;
+  padding: clamp(18px, 4vw, 28px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent), white 18%);
+  border-left: 6px solid var(--highlight);
+  border-radius: 10px;
+  background:
+    linear-gradient(110deg, color-mix(in srgb, var(--accent), transparent 88%), transparent 54%),
+    linear-gradient(135deg, rgba(31, 24, 14, 0.98), rgba(10, 10, 10, 0.98));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent), transparent 55%),
+    inset 0 0 22px color-mix(in srgb, var(--highlight), transparent 93%);
+  color: #fff;
+  text-align: left;
+  animation: clue-arrival 0.45s ease-out both;
+}
+
+.field-clue::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 78px;
+  height: 78px;
+  border-top: 1px solid color-mix(in srgb, var(--accent), transparent 50%);
+  border-right: 1px solid color-mix(in srgb, var(--accent), transparent 50%);
+  content: "";
+  pointer-events: none;
+}
+
+.field-clue-label {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--highlight);
+  font-size: clamp(11px, 2vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--highlight), transparent 25%);
+}
+
+.field-clue-message {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(17px, 3vw, 23px);
+  font-weight: 600;
+  line-height: 1.65;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--accent), transparent 40%);
+}
+
 .result.error {
   color: var(--error);
 }
@@ -495,6 +544,17 @@ button:disabled {
 @keyframes shake {
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
+}
+
+@keyframes clue-arrival {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field-clue {
+    animation: none;
+  }
 }
 
 @media (max-width: 600px) {

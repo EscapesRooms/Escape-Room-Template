@@ -148,6 +148,21 @@
     elements.result.className = "result" + (type ? " " + type : "");
   }
 
+  function showFieldClue(message) {
+    elements.result.replaceChildren();
+    elements.result.className = "result field-clue";
+
+    const label = document.createElement("span");
+    label.className = "field-clue-label";
+    label.textContent = config.ui.fieldClueLabel || "PISTA PARA ENCONTRAR EL SOBRE";
+
+    const clue = document.createElement("p");
+    clue.className = "field-clue-message";
+    clue.textContent = message;
+
+    elements.result.append(label, clue);
+  }
+
   function renderProgress() {
     if (state.unlockedIndex >= config.stages.length) {
       elements.progress.textContent = config.ui.complete;
@@ -204,7 +219,20 @@
     state.completed[currentStage.id] = true;
     state.unlockedIndex = Math.max(state.unlockedIndex, config.stages.indexOf(currentStage) + 1);
     persist();
-    showResult(message || currentStage.success || config.ui.correct, resultType || "success");
+    const resultMessage = message || currentStage.success || config.ui.correct;
+    if (resultType === "error") {
+      showResult(resultMessage, resultType);
+    } else {
+      if (currentStage.kind === "minigame") {
+        const gameStatus = elements.content.querySelector(".game-status");
+        if (gameStatus) gameStatus.hidden = true;
+      }
+      if (currentStage.envelope) {
+        showFieldClue(resultMessage);
+      } else {
+        showResult(resultMessage, "success");
+      }
+    }
     elements.checkButton.disabled = true;
     createContinueButton();
     renderProgress();
@@ -276,7 +304,7 @@
       });
       saveCoordinates(stage, wrapper);
       if (inputs.every(function (input) { return input.disabled; })) {
-        completeStage(config.ui.coordinatesSolved);
+        completeStage(stage.success || stage.reveal || config.ui.coordinatesSolved);
         if (stage.map && stage.map.url) addMapLink(stage.map);
         return;
       }
@@ -327,6 +355,7 @@
       const button = document.createElement("button");
       button.type = "button";
       button.className = "choice";
+      button.id = option.id;
       button.textContent = option.text;
       button.addEventListener("click", function () {
         if (option.id === stage.answer) {
@@ -338,12 +367,13 @@
         attempts++;
         button.classList.add("choice-incorrect");
         if (attempts >= (stage.attempts || 2)) {
-          choices.querySelectorAll("button").forEach(function (choice) { choice.disabled = true; });
-          const answer = (stage.options || []).find(function (item) { return item.id === stage.answer; });
-          const message = interpolate(config.ui.attemptsExhausted, {
-            answer: answer ? answer.id + ") " + answer.text : stage.answer
+          choices.querySelectorAll("button").forEach(function (choice) {
+            choice.disabled = choice.id !== stage.answer;
           });
-          completeStage(message, "error");
+          const answer = (stage.options || []).find(function (item) { return item.id === stage.answer; });
+          showResult(interpolate(config.ui.attemptsExhausted, {
+            answer: answer ? answer.id + ") " + answer.text : stage.answer
+          }), "error");
           return;
         }
         button.disabled = true;
@@ -376,9 +406,13 @@
 
     if (state.completed[stage.id]) {
       const completedMessage = stage.kind === "coordinates"
-        ? config.ui.coordinatesSolved
+        ? stage.success || stage.reveal || config.ui.coordinatesSolved
         : stage.success || stage.reveal || config.ui.correct;
-      showResult(completedMessage, "success");
+      if (stage.envelope) {
+        showFieldClue(completedMessage);
+      } else {
+        showResult(completedMessage, "success");
+      }
       if (stage.kind === "coordinates" && stage.map && stage.map.url) addMapLink(stage.map);
       createContinueButton();
       return;
