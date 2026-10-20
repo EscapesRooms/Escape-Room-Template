@@ -352,10 +352,36 @@ button:disabled {
 .platform-board,
 .spell-board {
   display: grid;
+  width: 100%;
+  gap: clamp(8px, 2vw, 16px);
+  margin: 18px auto;
+}
+
+.choices {
   grid-template-columns: 1fr;
-  gap: 12px;
   max-width: 520px;
-  margin: 14px auto;
+}
+
+.runes-board {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 560px;
+}
+
+.platform-board {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 100%;
+}
+
+.guardians-board {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 460px);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.spell-board {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 700px;
 }
 
 .choice {
@@ -397,10 +423,14 @@ button:disabled {
 }
 
 .game-tile {
-  min-height: 64px;
+  display: grid;
+  min-height: 0;
+  aspect-ratio: 1;
   margin: 0;
+  padding: clamp(6px, 2vw, 18px);
   background: #242018;
-  font-size: 25px;
+  font-size: clamp(24px, 6vw, 48px);
+  place-items: center;
 }
 
 .sequence-view {
@@ -455,13 +485,17 @@ button:disabled {
 
 .transport-options {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 14px);
+  width: 100%;
+  max-width: 760px;
+  margin: 14px auto;
 }
 
 .transport-choice {
-  min-height: 56px;
+  min-height: clamp(64px, 12vw, 110px);
   margin: 0;
+  font-size: clamp(14px, 2.7vw, 20px);
 }
 
 .vehicle-error {
@@ -484,11 +518,13 @@ button:disabled {
 
 .hunt-zone {
   position: relative;
-  height: 280px;
+  width: 100%;
+  height: clamp(280px, 48vh, 520px);
   overflow: hidden;
   border: 1px solid var(--accent);
   border-radius: 8px;
   background: radial-gradient(circle, #34301b 0%, #111 72%);
+  touch-action: manipulation;
 }
 
 .hunt-target {
@@ -558,7 +594,8 @@ button:disabled {
     padding: 12px 5px;
   }
 
-  .transport-options {
-    grid-template-columns: 1fr;
+  .guardians-board {
+    width: min(100%, 280px);
   }
+
 }
