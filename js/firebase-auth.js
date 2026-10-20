@@ -216,11 +216,13 @@ async function redeemCode(rawCode) {
     console.error("No se pudo canjear el código de acceso en Firestore.", error);
     if (error && error.code === "permission-denied") {
       return {
-        error: "Firebase no permite validar o consumir este código. Revisa las reglas de Firestore para codigos_acceso y sesiones_juego."
+        error: "Firebase no permite validar o consumir este código. Revisa las reglas publicadas para codigos_acceso y sesiones_juego. Detalle técnico: " +
+          (error.code || "permission-denied") + (error.message ? " — " + error.message : "")
       };
     }
     return {
-      error: "No se pudo contactar con Firebase. Comprueba tu conexión y vuelve a intentarlo."
+      error: "No se pudo contactar con Firebase. Comprueba tu conexión y vuelve a intentarlo. Detalle técnico: " +
+        (error && error.code || "sin código") + (error && error.message ? " — " + error.message : "")
     };
   }
 }
