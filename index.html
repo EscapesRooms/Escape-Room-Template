@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111111">
+  <title>Escape Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="background" class="background" aria-hidden="true"></div>
+  <audio id="music" loop></audio>
+
+  <button id="music-button" class="music-button" type="button"></button>
+
+  <main class="container">
+    <img id="game-logo" class="logo" alt="">
+    <h1 id="game-title"></h1>
+    <p id="game-intro" class="intro"></p>
+    <p id="progress" class="progress" aria-live="polite"></p>
+
+    <section class="challenge" aria-labelledby="stage-title">
+      <h2 id="stage-title"></h2>
+      <div id="stage-image-container" class="stage-image-container" hidden>
+        <img id="stage-image" class="stage-image" alt="">
+      </div>
+      <p id="stage-prompt" class="prompt"></p>
+      <div id="challenge-content"></div>
+      <button id="check-button" class="primary-button" type="button"></button>
+      <button id="hint-button" class="secondary-button" type="button" hidden></button>
+      <p id="hint" class="hint" hidden></p>
+      <div id="result" class="result" role="status" aria-live="polite"></div>
+      <button id="continue-button" class="continue-button" type="button" hidden></button>
+    </section>
+
+    <p id="notice" class="notice" role="status" aria-live="polite"></p>
+    <footer id="game-footer" class="footer"></footer>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/minigames.js"></script>
+  <script src="js/engine.js"></script>
+</body>
+</html>
