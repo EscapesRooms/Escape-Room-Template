@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /codigos_acceso/{codeId} {
+      allow get: if true;
+      allow list: if false;
+      allow create, delete: if false;
+      allow update: if resource.data.usado == false
+        && request.resource.data.usado == true
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado']);
+    }
+
+    match /sesiones_juego/{sessionId} {
+      allow get: if true;
+      allow list, update, delete: if false;
+      allow create: if request.resource.data.keys().hasAll(['activa', 'expiresAt', 'codigoId'])
+        && request.resource.data.keys().hasOnly(['activa', 'expiresAt', 'codigoId'])
+        && request.resource.data.activa == true
+        && request.resource.data.codigoId is string
+        && request.resource.data.expiresAt is timestamp
+        && exists(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId))
+        && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == false
+        && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == true
+        && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras is int
+        && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras > 0
+        && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras <= 720
+        && request.resource.data.expiresAt > request.time
+        && request.resource.data.expiresAt
+          <= request.time + duration.value(
+            get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras,
+            'h'
+          );
+    }
+  }
+}

@@ -51,6 +51,19 @@
     <p id="session-blocked-message" class="expired-message"></p>
   </main>
 
+  <main id="access-view" class="container access-view" hidden>
+    <div class="access-symbol" aria-hidden="true">✦</div>
+    <h1>Acceso a la aventura</h1>
+    <p class="access-description">Introduce tu código de acceso para comenzar.</p>
+    <form id="access-form" class="access-form">
+      <label for="access-code">Código de acceso</label>
+      <input id="access-code" name="code" type="text" autocomplete="one-time-code"
+        autocapitalize="characters" spellcheck="false" required maxlength="128">
+      <button id="access-submit" class="primary-button" type="submit">Validar acceso</button>
+    </form>
+    <p id="access-error" class="access-error" role="status" aria-live="polite"></p>
+  </main>
+
   <script>
     window.ESCAPE_AUTH_READY = new Promise(function (resolve) {
       let completed = false;

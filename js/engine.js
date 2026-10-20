@@ -608,6 +608,10 @@
     }
   }
 
+  window.ESCAPE_AUTH_GRANTED = function (result) {
+    if (result && result.allowed) startGame();
+  };
+
   if (!window.ESCAPE_AUTH_READY || typeof window.ESCAPE_AUTH_READY.then !== "function") {
     const title = "🔒 No se pudo validar la sesión";
     elements.sessionBlockedTitle.textContent = title;
@@ -621,6 +625,7 @@
       startGame();
       return;
     }
+    if (result && result.needsCode) return;
     elements.gameContent.hidden = true;
     elements.expiredView.hidden = true;
     elements.sessionBlockedTitle.textContent = result && result.title || "🔒 Acceso denegado o sesión no válida";
