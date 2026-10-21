@@ -2,6 +2,58 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /players/{playerId} {
+      function ownsPlayer() {
+        return request.auth != null && request.auth.uid == playerId;
+      }
+
+      function validPlayer(data) {
+        return data.keys().hasAll(['playerId', 'playerName', 'team'])
+          && data.keys().hasOnly(['playerId', 'playerName', 'team', 'score', 'updatedAt'])
+          && data.playerId == playerId
+          && data.playerName is string
+          && data.playerName.size() > 0
+          && data.playerName.size() <= 80
+          && data.team is string
+          && data.team.size() <= 40
+          && (!('score' in data) || (
+            data.score is int
+            && data.score >= 0
+            && data.score <= 100
+          ))
+          && (!('updatedAt' in data) || data.updatedAt is string);
+      }
+
+      allow read: if request.auth != null;
+      allow create, update: if ownsPlayer() && validPlayer(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /quiz/{quizId}/players/{playerId} {
+      function ownsQuizPlayer() {
+        return request.auth != null && request.auth.uid == playerId;
+      }
+
+      function validQuizScore(data) {
+        return data.keys().hasAll(['playerId', 'playerName', 'team', 'score', 'updatedAt'])
+          && data.keys().hasOnly(['playerId', 'playerName', 'team', 'score', 'updatedAt'])
+          && data.playerId == playerId
+          && data.playerName is string
+          && data.playerName.size() > 0
+          && data.playerName.size() <= 80
+          && data.team is string
+          && data.team.size() <= 40
+          && data.score is int
+          && data.score >= 0
+          && data.score <= 100
+          && data.updatedAt is string;
+      }
+
+      allow read: if request.auth != null;
+      allow create, update: if ownsQuizPlayer() && validQuizScore(request.resource.data);
+      allow delete: if false;
+    }
+
     match /codigos_acceso/{codeId} {
       allow get: if true;
       allow list: if false;

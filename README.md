@@ -47,8 +47,8 @@ Sus identificadores de ejemplo son `gran-comedor`, `biblioteca-restringida`,
    el diseño en móvil antes de compartirlo.
 8. Crea en Firestore un documento por código de acceso en `codigos_acceso`,
    con ID aleatorio difícil de adivinar, `usado: false` y `duracionHoras` como
-   entero. Publica las reglas de `firestore.rules` en Firebase Console antes
-   de probar el canje.
+   entero. Publica las reglas de `firestore.rules` en el proyecto configurado
+   antes de probar el canje.
 
 El ejemplo incluido usa temática de Hogwarts y escondites de muestra. Sustituye
 los textos, las respuestas, los artefactos y los acertijos por datos adecuados
@@ -98,11 +98,21 @@ en Firestore al recargar.
 `firestore.rules` permite leer códigos individuales (no listar la colección),
 consumir un código que todavía no se haya usado y crear una sesión en la misma
 transacción. Solo permite leer individualmente las sesiones y deniega
-actualizaciones y borrados desde el cliente. Copia y publica esas reglas en
-Firebase Console para el proyecto correcto. Los códigos deben ser aleatorios y
-difíciles de adivinar: las reglas no limitan intentos ni ofrecen protección
-contra ataques automatizados de adivinación. La configuración web de Firebase
-se entrega al navegador; el `apiKey` no es un secreto.
+actualizaciones y borrados desde el cliente. Este repositorio y `Quiz` usan el
+mismo proyecto Firebase, que solo admite un conjunto de reglas de Firestore:
+publicar las reglas desde una aplicación reemplaza las reglas de la otra. Por
+eso ambos archivos `firestore.rules` contienen las reglas combinadas para el
+Escape Room y los rankings del Quiz. Mantén ambos archivos sincronizados y
+publica las reglas combinadas desde esta carpeta con:
+
+```powershell
+npx.cmd firebase-tools deploy --only firestore:rules
+```
+
+Los códigos deben ser aleatorios y difíciles de adivinar: las reglas no limitan
+intentos ni ofrecen protección contra ataques automatizados de adivinación. La
+configuración web de Firebase se entrega al navegador; el `apiKey` no es un
+secreto.
 
 El canje usa una transacción para que dos navegadores no puedan consumir
 simultáneamente el mismo código. Aun así, las reglas del cliente y el reloj del
