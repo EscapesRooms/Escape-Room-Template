@@ -1,14 +1,27 @@
-# Escape Room Template
+# Template
 
 Plantilla de Escape Room en una sola página. Separa el contenido de cada campaña
 (`js/config.js`) del motor de navegación y validación (`js/engine.js`) y del motor
 de minijuegos (`js/minigames.js`).
 
-## Probar el juego
+## Portal público y acceso al juego
 
-Abre `index.html` en un navegador moderno. Publica el juego en HTTPS. Al entrar,
-el jugador introduce un código de acceso de un solo uso; después, cada QR de
-prueba puede enlazar directamente a la etapa, por ejemplo:
+Al abrir la dirección principal se muestra un portal público con información
+de las experiencias y un apartado para introducir el código. Si se escanea un
+QR de una prueba sin tener una sesión activa, el portal explica que forma parte
+de un recorrido y solicita el código antes de mostrar el juego.
+
+Configura el contenido del portal en `publicPortal`, dentro de `js/config.js`:
+puedes añadir o quitar experiencias y definir un enlace de reservas, WhatsApp o
+correo en `bookingUrl`. Deja `bookingUrl` vacío si todavía no tienes un enlace.
+El portal tiene su propia hoja de estilos (`css/portal.css`), independiente del
+diseño de las experiencias en `css/style.css`; se activa solo mientras se muestra
+la portada y el acceso.
+
+Publica el juego en HTTPS. Después de introducir el código una vez, la sesión
+se conserva en ese navegador y los QR siguientes llevan directamente a la
+etapa indicada, sin volver a pedirlo. Cada QR puede enlazar a una etapa, por
+ejemplo:
 
 ```text
 https://ejemplo.com/?pista=biblioteca-restringida
@@ -16,8 +29,7 @@ https://ejemplo.com/?pista=biblioteca-restringida
 
 También se aceptan los identificadores numéricos definidos en la propiedad `qr`
 de cada prueba. Los accesos a pruebas bloqueadas se llevan a la fase permitida.
-Tras canjear el código, la sesión se conserva en el almacenamiento local del
-navegador hasta su vencimiento.
+Al caducar la sesión se puede introducir un nuevo código.
 La campaña de ejemplo incluye seis etapas físicas y digitales: QR de la
 localización → reto → acertijo en pantalla para hallar un sobre físico →
 artefacto y pista en papel dentro del sobre para llegar a la siguiente etapa.
@@ -47,8 +59,17 @@ Sus identificadores de ejemplo son `gran-comedor`, `biblioteca-restringida`,
    el diseño en móvil antes de compartirlo.
 8. Crea en Firestore un documento por código de acceso en `codigos_acceso`,
    con ID aleatorio difícil de adivinar, `usado: false` y `duracionHoras` como
-   entero. Publica las reglas de `firestore.rules` en el proyecto configurado
-   antes de probar el canje.
+   entero. Cada código se canjea una sola vez y queda asociado a la aventura
+   elegida. El canje crea también un registro en
+   `experiencias/{experienceId}/accesos/{sessionId}`. Publica las reglas de
+   `firestore.rules` en el proyecto configurado antes de probarlo.
+9. Edita `publicPortal` en `js/config.js` para mostrar las experiencias
+   disponibles y el contacto o enlace para contratarlas.
+10. Configura las URL públicas de cada experiencia en
+    `publicPortal.experiences[].url` y el `publicPortalUrl` de
+    `Escape-Stranger-Things/js/config.js`. Las rutas relativas de ejemplo sirven
+    si ambas carpetas se publican bajo el mismo dominio; en producción, usa
+    las URL HTTPS reales de cada juego y del portal.
 
 El ejemplo incluido usa temática de Hogwarts y escondites de muestra. Sustituye
 los textos, las respuestas, los artefactos y los acertijos por datos adecuados
@@ -89,16 +110,19 @@ usado: false
 duracionHoras: número positivo (máximo 720)
 ```
 
-Al canjearlo, la transacción actualiza `usado` a `true` y crea un documento de
-sesión en `sesiones_juego` con `activa: true`, `expiresAt` como Timestamp de
-Firestore y `codigoId` para que las reglas verifiquen que ambos cambios se
-hicieron juntos. La sesión se guarda en `localStorage` y se comprueba de nuevo
-en Firestore al recargar.
+Al canjearlo, la transacción registra la aventura en el código, crea un
+documento de sesión en `sesiones_juego` y crea una entrada de auditoría en
+`experiencias/{experienceId}/accesos/{sessionId}`. La sesión incluye
+`activa: true`, `expiresAt` como Timestamp de Firestore, `codigoId` y
+`experiencia`. Así se puede distinguir, por ejemplo,
+`experiencias/harry-potter/accesos` de
+`experiencias/stranger-things/accesos`. La sesión se guarda en el navegador y
+se comprueba de nuevo en Firestore al recargar y al abrir otro juego.
 
 `firestore.rules` permite leer códigos individuales (no listar la colección),
-consumir un código que todavía no se haya usado y crear una sesión en la misma
-transacción. Solo permite leer individualmente las sesiones y deniega
-actualizaciones y borrados desde el cliente. Este repositorio y `Quiz` usan el
+consumir un código que todavía no se haya usado y crear la sesión y su registro
+de experiencia en la misma transacción. Solo permite leer individualmente las
+sesiones y deniega actualizaciones y borrados desde el cliente. Este repositorio y `Quiz` usan el
 mismo proyecto Firebase, que solo admite un conjunto de reglas de Firestore:
 publicar las reglas desde una aplicación reemplaza las reglas de la otra. Por
 eso ambos archivos `firestore.rules` contienen las reglas combinadas para el

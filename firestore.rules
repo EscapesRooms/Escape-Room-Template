@@ -61,33 +61,58 @@ service cloud.firestore {
       allow update: if resource.data.usado == false
         && request.resource.data.usado == true
         && request.resource.data.sesionId is string
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado', 'sesionId'])
+        && request.resource.data.experiencia in ['harry-potter', 'stranger-things']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado', 'sesionId', 'experiencia'])
         && existsAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId))
         && getAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId)).data.codigoId == codeId
-        && getAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId)).data.activa == true;
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId)).data.activa == true
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId)).data.experiencia == request.resource.data.experiencia
+        && existsAfter(/databases/$(database)/documents/experiencias/$(request.resource.data.experiencia)/accesos/$(request.resource.data.sesionId));
     }
 
     match /sesiones_juego/{sessionId} {
       allow get: if true;
       allow list, update, delete: if false;
-      allow create: if request.resource.data.keys().hasAll(['activa', 'expiresAt', 'codigoId'])
-        && request.resource.data.keys().hasOnly(['activa', 'expiresAt', 'codigoId'])
+      allow create: if request.resource.data.keys().hasAll(['activa', 'expiresAt', 'codigoId', 'experiencia'])
+        && request.resource.data.keys().hasOnly(['activa', 'expiresAt', 'codigoId', 'experiencia'])
         && request.resource.data.activa == true
         && request.resource.data.codigoId is string
+        && request.resource.data.experiencia in ['harry-potter', 'stranger-things']
         && request.resource.data.expiresAt is timestamp
         && exists(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId))
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == false
         && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == true
         && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.sesionId == sessionId
+        && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.experiencia == request.resource.data.experiencia
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras is int
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras > 0
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras <= 720
+        && existsAfter(/databases/$(database)/documents/experiencias/$(request.resource.data.experiencia)/accesos/$(sessionId))
         && request.resource.data.expiresAt > request.time
         && request.resource.data.expiresAt
           <= request.time + duration.value(
             get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras,
             'h'
           );
+    }
+
+    match /experiencias/{experienceId}/accesos/{sessionId} {
+      allow get, list, update, delete: if false;
+      allow create: if experienceId in ['harry-potter', 'stranger-things']
+        && request.resource.data.keys().hasAll(['codigoId', 'createdAt', 'expiresAt'])
+        && request.resource.data.keys().hasOnly(['codigoId', 'createdAt', 'expiresAt'])
+        && request.resource.data.codigoId is string
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.expiresAt is timestamp
+        && existsAfter(/databases/$(database)/documents/sesiones_juego/$(sessionId))
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(sessionId)).data.activa == true
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(sessionId)).data.codigoId == request.resource.data.codigoId
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(sessionId)).data.experiencia == experienceId
+        && getAfter(/databases/$(database)/documents/sesiones_juego/$(sessionId)).data.expiresAt == request.resource.data.expiresAt
+        && existsAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId))
+        && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == true
+        && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.sesionId == sessionId
+        && getAfter(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.experiencia == experienceId;
     }
   }
 }

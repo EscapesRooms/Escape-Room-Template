@@ -569,10 +569,28 @@
     renderStage(config.stages[0]);
   }
 
-  function startGame() {
+  function startGame(authResult) {
     try {
+      if (authResult && authResult.experienceId && authResult.experienceId !== config.experienceId) {
+        const targetExperience = config.publicPortal.experiences.find(function (experience) {
+          return experience.id === authResult.experienceId;
+        });
+        if (!targetExperience || !targetExperience.url) {
+          throw new Error("Falta configurar la URL de la aventura seleccionada en publicPortal.experiences.");
+        }
+        const destination = new URL(targetExperience.url, window.location.href);
+        const params = new URLSearchParams(window.location.search);
+        params.delete("aventura");
+        params.delete("session");
+        destination.search = params.toString();
+        if (authResult.sessionId) destination.searchParams.set("session", authResult.sessionId);
+        window.location.assign(destination.href);
+        return;
+      }
       validateConfig();
       applyBranding();
+      document.body.classList.remove("portal-mode");
+      document.getElementById("public-view").hidden = true;
       const accessStatus = checkAccess();
       if (!accessStatus.allowed) {
         showExpiredAccess(Boolean(accessStatus.unavailable));
@@ -609,7 +627,7 @@
   }
 
   window.ESCAPE_AUTH_GRANTED = function (result) {
-    if (result && result.allowed) startGame();
+    if (result && result.allowed) startGame(result);
   };
 
   if (!window.ESCAPE_AUTH_READY || typeof window.ESCAPE_AUTH_READY.then !== "function") {
@@ -622,7 +640,7 @@
   }
   window.ESCAPE_AUTH_READY.then(function (result) {
     if (result && result.allowed) {
-      startGame();
+      startGame(result);
       return;
     }
     if (result && result.needsCode) return;

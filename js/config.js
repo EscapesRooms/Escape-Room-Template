@@ -1,4 +1,5 @@
 window.ESCAPE_CONFIG = {
+  experienceId: "harry-potter",
   storageKey: "escape-room-hogwarts-hybrid-v2",
   theme: {
     colors: {
@@ -17,6 +18,29 @@ window.ESCAPE_CONFIG = {
     footer: "Hogwarts School of Witchcraft and Wizardry",
     logo: "assets/img/logo.png",
     music: "assets/audio/background.mp3"
+  },
+  publicPortal: {
+    title: "Escape rooms al aire libre",
+    description: "Resuelve enigmas, sigue las pistas y descubre la ciudad de una forma diferente. Escanea los QR del recorrido para avanzar en la aventura.",
+    experiencesTitle: "Descubre nuestras aventuras",
+    experiences: [
+      {
+        id: "harry-potter",
+        title: "Harry Potter",
+        theme: "hogwarts",
+        url: ""
+      },
+      {
+        id: "stranger-things",
+        title: "Stranger Things",
+        theme: "stranger-things",
+        url: "../Escape-Stranger-Things/index.html"
+      }
+    ],
+    bookingTitle: "¿Quieres organizar una partida?",
+    bookingDescription: "Consulta disponibilidad y opciones para tu grupo. Añade tu enlace de reservas, WhatsApp o correo en publicPortal.bookingUrl.",
+    bookingLabel: "Consultar disponibilidad",
+    bookingUrl: ""
   },
   ui: {
     musicOn: "🎵 Activar música",
