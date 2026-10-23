@@ -61,7 +61,7 @@ service cloud.firestore {
       allow update: if resource.data.usado == false
         && request.resource.data.usado == true
         && request.resource.data.sesionId is string
-        && request.resource.data.experiencia in ['harry-potter', 'stranger-things']
+        && request.resource.data.experiencia in ['harry-potter', 'stranger-things', 'la-ultima-pieza']
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado', 'sesionId', 'experiencia'])
         && existsAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId))
         && getAfter(/databases/$(database)/documents/sesiones_juego/$(request.resource.data.sesionId)).data.codigoId == codeId
@@ -77,7 +77,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['activa', 'expiresAt', 'codigoId', 'experiencia'])
         && request.resource.data.activa == true
         && request.resource.data.codigoId is string
-        && request.resource.data.experiencia in ['harry-potter', 'stranger-things']
+        && request.resource.data.experiencia in ['harry-potter', 'stranger-things', 'la-ultima-pieza']
         && request.resource.data.expiresAt is timestamp
         && exists(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId))
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.usado == false
@@ -98,7 +98,7 @@ service cloud.firestore {
 
     match /experiencias/{experienceId}/accesos/{sessionId} {
       allow get, list, update, delete: if false;
-      allow create: if experienceId in ['harry-potter', 'stranger-things']
+      allow create: if experienceId in ['harry-potter', 'stranger-things', 'la-ultima-pieza']
         && request.resource.data.keys().hasAll(['codigoId', 'createdAt', 'expiresAt'])
         && request.resource.data.keys().hasOnly(['codigoId', 'createdAt', 'expiresAt'])
         && request.resource.data.codigoId is string

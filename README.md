@@ -51,10 +51,12 @@ canjear códigos con esa configuración.** Para activar un nuevo juego:
    `publicPortal.experiences` dentro de `js/config.js`.
 2. Añade el ID explícitamente a las listas permitidas de
    `firestore.rules` para `codigos_acceso`, `sesiones_juego` y `experiencias`.
-   Las reglas actuales solo autorizan `harry-potter` y `stranger-things`.
+   Las reglas compartidas autorizan `harry-potter`, `stranger-things` y
+   `la-ultima-pieza`.
 3. Mantén las reglas compartidas sincronizadas en
    `Template/firestore.rules`, `Escape-Harry-Potter/firestore.rules`,
-   `Quiz/firestore.rules` y en el proyecto nuevo.
+   `Escape-La-Ultima-Pieza/firestore.rules`, `Quiz/firestore.rules` y en cada
+   proyecto nuevo.
 4. Publica las reglas combinadas desde un directorio configurado para el mismo
    proyecto Firebase:
 
@@ -67,8 +69,8 @@ Firebase: publicar un archivo de reglas reemplaza el conjunto remoto completo.
 Comprueba que conserve tanto los accesos de los juegos como las reglas del
 Quiz antes de desplegar.
 
-La portada que actualmente permite elegir Harry Potter o Stranger Things está
-en `Escape-Harry-Potter`. Configura ahí la URL pública de cada aventura en
+La portada que permite elegir Harry Potter, Stranger Things o La Última Pieza
+está en `Escape-Harry-Potter`. Configura ahí la URL pública de cada aventura en
 `publicPortal.experiences[].url` y configura en cada juego el enlace de retorno
 al portal. Las rutas relativas actuales sirven en la estructura local; si los
 proyectos se publican por separado, sustitúyelas por sus URL HTTPS reales.
