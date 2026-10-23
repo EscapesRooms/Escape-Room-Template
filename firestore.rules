@@ -89,11 +89,12 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras <= 720
         && existsAfter(/databases/$(database)/documents/experiencias/$(request.resource.data.experiencia)/accesos/$(sessionId))
         && request.resource.data.expiresAt > request.time
+        // Allow small client/server clock skew while keeping the code duration bounded.
         && request.resource.data.expiresAt
           <= request.time + duration.value(
             get(/databases/$(database)/documents/codigos_acceso/$(request.resource.data.codigoId)).data.duracionHoras,
             'h'
-          );
+          ) + duration.value(5, 'm');
     }
 
     match /experiencias/{experienceId}/accesos/{sessionId} {
