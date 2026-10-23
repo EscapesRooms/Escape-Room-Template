@@ -76,13 +76,13 @@ function renderPublicPortal() {
     if (!experience || typeof experience.title !== "string") {
       throw new Error("Cada experiencia de publicPortal necesita un title.");
     }
-    if (!["harry-potter", "stranger-things"].includes(experience.id)) {
-      throw new Error("Cada experiencia debe tener un id reconocido: harry-potter o stranger-things.");
+    if (typeof experience.id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(experience.id)) {
+      throw new Error("Cada experiencia necesita un id en minúsculas, con letras, números y guiones.");
     }
     const card = document.createElement("button");
     card.type = "button";
     card.className = "experience-card";
-    if (experience.theme === "hogwarts" || experience.theme === "stranger-things") {
+    if (typeof experience.theme === "string" && /^[a-z0-9-]+$/.test(experience.theme)) {
       card.classList.add("experience-card--" + experience.theme);
     }
     card.dataset.experienceId = experience.id;
@@ -250,7 +250,7 @@ async function validateSavedSession() {
 
     const data = snapshot.data();
     const serverExpiry = timestampMillis(data.expiresAt);
-    const sessionExperienceId = data.experiencia || (experienceId === "harry-potter" ? "harry-potter" : null);
+    const sessionExperienceId = data.experiencia || null;
     if (data.activa !== true || !Number.isFinite(serverExpiry) || sessionExperienceId !== experienceId) {
       if (sessionQueryId) {
         return { fatal: true, title: "🔒 Código asociado a otra aventura", message: "Este acceso pertenece a otra aventura. Vuelve a la página principal y elige la aventura correcta." };

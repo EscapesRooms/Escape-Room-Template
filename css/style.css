@@ -1,11 +1,11 @@
 :root {
-  --page: #080706;
-  --panel: rgba(15, 15, 15, 0.88);
-  --accent: #d4af37;
-  --highlight: #ffd700;
-  --text: #f3d180;
-  --success: #6dff7b;
-  --error: #ff6d6d;
+  --page: #111827;
+  --panel: rgba(31, 41, 55, 0.94);
+  --accent: #60a5fa;
+  --highlight: #93c5fd;
+  --text: #e5e7eb;
+  --success: #4ade80;
+  --error: #f87171;
   color-scheme: dark;
 }
 
@@ -19,7 +19,7 @@ body {
   overflow-x: hidden;
   background: var(--page);
   color: var(--text);
-  font-family: "Cinzel", Georgia, serif;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 .background {
@@ -35,7 +35,7 @@ body {
 .background::after {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.58);
+  background: rgba(17, 24, 39, 0.58);
   content: "";
 }
 
@@ -171,7 +171,7 @@ h2[data-location]:not([data-location=""])::after {
 .continue-button,
 .choice,
 .game-tile,
-.transport-choice,
+.route-choice,
 .hunt-start {
   width: 100%;
   min-height: 50px;
@@ -199,9 +199,9 @@ h2[data-location]:not([data-location=""])::after {
 .secondary-button,
 .choice,
 .game-tile,
-.transport-choice {
+.route-choice {
   background: rgba(255, 255, 255, 0.08);
-  color: #fff8c7;
+  color: var(--text);
   cursor: pointer;
 }
 
@@ -246,7 +246,7 @@ button:disabled {
   border-radius: 10px;
   background:
     linear-gradient(110deg, color-mix(in srgb, var(--accent), transparent 88%), transparent 54%),
-    linear-gradient(135deg, rgba(31, 24, 14, 0.98), rgba(10, 10, 10, 0.98));
+    linear-gradient(135deg, rgba(31, 41, 55, 0.98), rgba(17, 24, 39, 0.98));
   box-shadow: 0 0 12px color-mix(in srgb, var(--accent), transparent 55%),
     inset 0 0 22px color-mix(in srgb, var(--highlight), transparent 93%);
   color: #fff;
@@ -320,13 +320,13 @@ button:disabled {
 .tile-correct,
 .choice-correct {
   border-color: var(--success) !important;
-  background: #1d7429 !important;
+  background: #166534 !important;
 }
 
 .coordinate-incorrect,
 .choice-incorrect {
   border-color: var(--error) !important;
-  background: #8d1f1f !important;
+  background: #991b1b !important;
 }
 
 .map-link {
@@ -347,10 +347,10 @@ button:disabled {
 }
 
 .choices,
-.runes-board,
-.guardians-board,
-.platform-board,
-.spell-board {
+.sequence-board,
+.memory-board,
+.route-sequence-board,
+.pattern-board {
   display: grid;
   width: 100%;
   gap: clamp(8px, 2vw, 16px);
@@ -362,24 +362,24 @@ button:disabled {
   max-width: 520px;
 }
 
-.runes-board {
+.sequence-board {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   max-width: 560px;
 }
 
-.platform-board {
+.route-sequence-board {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   max-width: 100%;
 }
 
-.guardians-board {
+.memory-board {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: min(100%, 460px);
   margin-right: auto;
   margin-left: auto;
 }
 
-.spell-board {
+.pattern-board {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   max-width: 700px;
 }
@@ -428,7 +428,7 @@ button:disabled {
   aspect-ratio: 1;
   margin: 0;
   padding: clamp(6px, 2vw, 18px);
-  background: #242018;
+  background: #1f2937;
   font-size: clamp(24px, 6vw, 48px);
   place-items: center;
 }
@@ -439,14 +439,14 @@ button:disabled {
   padding: 10px;
   border: 1px solid var(--accent);
   border-radius: 8px;
-  background: #090909;
-  color: #fff8c7;
+  background: #111827;
+  color: var(--text);
   font-size: clamp(20px, 4vw, 27px);
   letter-spacing: 3px;
   text-align: center;
 }
 
-.transport-route {
+.route-visualization {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -455,16 +455,16 @@ button:disabled {
   padding: 16px 10px;
   border: 1px solid var(--accent);
   border-radius: 8px;
-  background: #090909;
+  background: #111827;
 }
 
-.transport-stop {
-  color: #fff8c7;
+.route-stop {
+  color: var(--text);
   font-size: clamp(12px, 2.5vw, 16px);
   font-weight: 700;
 }
 
-.transport-line {
+.route-line {
   display: grid;
   width: 42px;
   height: 42px;
@@ -476,14 +476,14 @@ button:disabled {
   font-weight: 700;
 }
 
-.transport-vehicle {
+.route-marker {
   min-height: 58px;
   margin: 8px auto;
   font-size: 44px;
   text-align: center;
 }
 
-.transport-options {
+.route-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(8px, 2vw, 14px);
@@ -492,7 +492,7 @@ button:disabled {
   margin: 14px auto;
 }
 
-.transport-choice {
+.route-choice {
   min-height: clamp(64px, 12vw, 110px);
   margin: 0;
   font-size: clamp(14px, 2.7vw, 20px);
@@ -510,8 +510,8 @@ button:disabled {
   display: block;
   max-width: 390px;
   margin: 0 auto 15px;
-  background: linear-gradient(135deg, #8b6500, var(--accent), #fff1a8);
-  color: #201700;
+  background: linear-gradient(135deg, #1d4ed8, var(--accent), #bfdbfe);
+  color: #111827;
   cursor: pointer;
   font-weight: 700;
 }
@@ -523,7 +523,7 @@ button:disabled {
   overflow: hidden;
   border: 1px solid var(--accent);
   border-radius: 8px;
-  background: radial-gradient(circle, #34301b 0%, #111 72%);
+  background: radial-gradient(circle, #374151 0%, #111827 72%);
   touch-action: manipulation;
 }
 
@@ -533,10 +533,10 @@ button:disabled {
   min-height: 58px;
   margin: 0;
   padding: 0;
-  border: 2px solid #fff1a8;
+  border: 2px solid #bfdbfe;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff8c7, var(--accent) 45%, #8b6500);
-  color: #fff8c7;
+  background: radial-gradient(circle at 35% 30%, #eff6ff, var(--accent) 45%, #1d4ed8);
+  color: #111827;
   cursor: pointer;
   font-size: 24px;
   transition: left 0.2s ease, top 0.2s ease;
@@ -589,12 +589,12 @@ button:disabled {
     font-size: 16px;
   }
 
-  .transport-route {
+  .route-visualization {
     gap: 5px;
     padding: 12px 5px;
   }
 
-  .guardians-board {
+  .memory-board {
     width: min(100%, 280px);
   }
 

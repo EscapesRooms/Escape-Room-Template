@@ -23,13 +23,13 @@
     });
   }
 
-  function mountRunes(container, game, onComplete) {
-    const board = textElement("div", "runes-board");
+  function mountSequence(container, game, onComplete) {
+    const board = textElement("div", "sequence-board");
     const status = textElement("p", "game-status", game.promptText);
     const sequence = game.sequence || game.symbols;
     const selected = [];
     shuffle(game.symbols).forEach(function (symbol) {
-      const button = textElement("button", "game-tile rune-tile", symbol);
+      const button = textElement("button", "game-tile sequence-tile", symbol);
       button.type = "button";
       button.setAttribute("aria-label", interpolate(game.symbolAriaLabel, { symbol: symbol }));
       button.addEventListener("click", function () {
@@ -55,14 +55,14 @@
     container.append(board, status);
   }
 
-  function mountGuardians(container, game, onComplete) {
-    const board = textElement("div", "guardians-board");
+  function mountMemoryGrid(container, game, onComplete) {
+    const board = textElement("div", "memory-board");
     const status = textElement("p", "game-status", game.memorizeText);
     let next = 1;
     let locked = true;
     const positions = shuffle(Array.from({ length: game.count }, function (_, index) { return index + 1; }));
     positions.forEach(function (number) {
-      const button = textElement("button", "game-tile guardian-tile", String(number));
+      const button = textElement("button", "game-tile memory-tile", String(number));
       button.type = "button";
       button.disabled = true;
       button.addEventListener("click", function () {
@@ -101,15 +101,15 @@
     }, game.memoryMs);
   }
 
-  function mountPlatform(container, game, onComplete) {
+  function mountRouteSequence(container, game, onComplete) {
     const sequence = game.sequence || game.route || game.nodes;
     const sequenceView = textElement("div", "sequence-view", sequence.join(game.separator));
-    const board = textElement("div", "platform-board");
+    const board = textElement("div", "route-sequence-board");
     const status = textElement("p", "game-status", game.memorizeText);
     let position = 0;
     let showing = true;
     const buttons = game.choices.map(function (choice) {
-      const button = textElement("button", "game-tile platform-tile", choice);
+      const button = textElement("button", "game-tile route-sequence-tile", choice);
       button.type = "button";
       button.addEventListener("click", function () {
         if (showing) return;
@@ -148,10 +148,10 @@
     window.setTimeout(hideSequence, game.memoryMs);
   }
 
-  function mountTransport(container, game, onComplete) {
-    const route = textElement("div", "transport-route");
-    const vehicle = textElement("div", "transport-vehicle", game.trainLabel);
-    const options = textElement("div", "transport-options");
+  function mountRouteChoice(container, game, onComplete) {
+    const route = textElement("div", "route-visualization");
+    const vehicle = textElement("div", "route-marker", game.vehicleLabel);
+    const options = textElement("div", "route-options");
     const status = textElement("p", "game-status", "");
     let current = 0;
 
@@ -159,15 +159,15 @@
       const leg = game.stages[current];
       route.replaceChildren();
       route.append(
-        textElement("span", "transport-stop", game.startLabel + " " + leg.from),
-        textElement("span", "transport-line", game.lineLabel),
-        textElement("span", "transport-stop", game.goalIcon + " " + game.goalLabel)
+        textElement("span", "route-stop", game.startLabel + " " + leg.from),
+        textElement("span", "route-line", game.lineLabel),
+        textElement("span", "route-stop", game.goalIcon + " " + game.goalLabel)
       );
       vehicle.classList.remove("vehicle-error", "vehicle-arrival");
       status.textContent = interpolate(game.turnText, { current: current + 1, total: game.stages.length });
       options.replaceChildren();
       shuffle([leg.correct, ...leg.alternatives]).forEach(function (destination) {
-        const button = textElement("button", "transport-choice", game.trainLabel + " " + destination);
+        const button = textElement("button", "route-choice", game.vehicleLabel + " " + destination);
         button.type = "button";
         button.addEventListener("click", function () {
           options.querySelectorAll("button").forEach(function (item) { item.disabled = true; });
@@ -196,7 +196,7 @@
     renderLeg();
   }
 
-  function mountTargetHunt(container, game, onComplete) {
+  function mountMovingTarget(container, game, onComplete) {
     const start = textElement("button", "hunt-start", game.startText);
     const zone = textElement("div", "hunt-zone", "");
     const target = textElement("button", "hunt-target", game.targetLabel);
@@ -240,17 +240,17 @@
     container.append(start, zone, progress);
   }
 
-  function mountSpell(container, game, onComplete) {
+  function mountPattern(container, game, onComplete) {
     const roundLabel = textElement("p", "round-label", "");
     const sequenceView = textElement("div", "sequence-view", "");
-    const board = textElement("div", "spell-board");
+    const board = textElement("div", "pattern-board");
     const status = textElement("p", "game-status", "");
     let round = 0;
     let sequence = [];
     let position = 0;
     let locked = true;
     const buttons = game.symbols.map(function (symbol) {
-      const button = textElement("button", "game-tile spell-tile", symbol);
+      const button = textElement("button", "game-tile pattern-tile", symbol);
       button.type = "button";
       button.addEventListener("click", function () {
         if (locked) return;
@@ -299,12 +299,12 @@
   }
 
   const gameTypes = {
-    runas: mountRunes,
-    guardianes: mountGuardians,
-    anden: mountPlatform,
-    transporte: mountTransport,
-    snitch: mountTargetHunt,
-    hechizo: mountSpell
+    secuencia: mountSequence,
+    memoria: mountMemoryGrid,
+    ruta: mountRouteSequence,
+    eleccion: mountRouteChoice,
+    objetivo: mountMovingTarget,
+    patron: mountPattern
   };
 
   window.EscapeMinigames = {

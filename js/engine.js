@@ -202,8 +202,10 @@
     elements.intro.textContent = config.branding.intro || "";
     elements.footer.textContent = config.branding.footer || "";
     elements.logo.src = config.branding.logo || "";
+    elements.logo.hidden = !config.branding.logo;
     elements.logo.alt = config.branding.title;
     elements.music.src = config.branding.music || "";
+    elements.musicButton.hidden = !config.branding.music;
     Object.entries(config.theme && config.theme.colors ? config.theme.colors : {}).forEach(function (entry) {
       document.documentElement.style.setProperty("--" + entry[0], entry[1]);
     });
